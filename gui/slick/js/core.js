@@ -2687,7 +2687,7 @@ var SICKRAGE = {
         failedDownloads: function() {
             $("#failedTable:has(tbody tr)").tablesorter({
                 widgets: ['zebra'],
-                sortList: [[0,0]],
+                sortList: [[1,0]],
                 headers: { 3: { sorter: false } }
             });
             $('#limit').on('change', function(){
@@ -3292,25 +3292,29 @@ var SICKRAGE = {
             });
 
             $('#submitShowDirs').on('click', function() {
-                var dirArr = [];
+                var shows = "";
                 $('.dirCheck').each(function() {
                     if (this.checked === true) {
                         var show = $(this).attr('id');
                         var indexer = $(this).closest('tr').find('select').val();
-                        dirArr.push(encodeURIComponent(indexer + '|' + show));
+                        shows += "<input type='hidden' name='shows_to_add' value='" + indexer + '|' + show + "'/>";
                     }
                 });
 
-                if (dirArr.length === 0) {
+                if (shows === "") {
                     return false;
                 }
 
-                var url = srRoot + '/addShows/addExistingShows?promptForSettings=' + ($('#promptForSettings').prop('checked') ? 'on' : 'off') + '&shows_to_add=' + dirArr.join('&shows_to_add=');
-                if(url.length < 2083) {
-                    window.location.href = url;
-                } else {
-                    alert("You've selected too many shows, please uncheck some and try again. [" + url.length + "/2083 characters]");
-                }
+                var submitForm = $(
+                    "<form method='post' action='" + srRoot + "/addShows/addExistingShows" +
+                    "?promptForSettings=" + ($('#promptForSettings').prop('checked') ? 'on' : 'off') + "'>" +
+                        shows +
+                    "</form>"
+                );
+
+                submitForm.appendTo('body');
+
+                submitForm.submit();
             });
 
             function loadContent() {
@@ -3348,7 +3352,7 @@ var SICKRAGE = {
                 }
                 $('#rootDirStaticList').html('');
                 $('#rootDirs option').each(function(i, w) {
-                    $('#rootDirStaticList').append('<li class="ui-state-default ui-corner-all"><input type="checkbox" class="cb dir_check" id="' + $(w).val() + '" checked=checked> <label for="' + $(w).val() + '"><b>' + $(w).val() + '</b></label></li>');
+                    $('#rootDirStaticList').append('<li class="ui-state-default ui-corner-all"><input type="checkbox" class="cb dir_check" id="' + $(w).val() + '" checked=checked> <label for="' + $(w).val() + '">' + $(w).val() + '</label></li>');
                 });
                 loadContent();
             };
