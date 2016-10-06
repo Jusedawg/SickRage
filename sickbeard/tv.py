@@ -66,10 +66,8 @@ from sickbeard.common import NAMING_DUPLICATE, NAMING_EXTEND, NAMING_LIMITED_EXT
     NAMING_LIMITED_EXTEND_E_PREFIXED
 
 import shutil
-import shutil_custom
 
 
-shutil.copyfile = shutil_custom.copyfile_custom
 
 
 def dirty_setter(attr_name):
@@ -486,6 +484,9 @@ class TVShow(object):  # pylint: disable=too-many-instance-attributes, too-many-
         cachedShow = t[self.indexerid]
         cachedSeasons = {}
 
+        curShowid = None
+        curShowName = None
+
         for curResult in sql_results:
 
             curSeason = int(curResult[b"season"])
@@ -530,8 +531,9 @@ class TVShow(object):  # pylint: disable=too-many-instance-attributes, too-many-
                            logger.DEBUG)
                 continue
 
-        logger.log("{id}: Finished loading all episodes for {show} from the DB".format
-                   (show=curShowName, id=curShowid), logger.DEBUG)
+        if curShowName and curShowid:
+            logger.log("{id}: Finished loading all episodes for {show} from the DB".format
+                       (show=curShowName, id=curShowid), logger.DEBUG)
 
         return scannedEps
 

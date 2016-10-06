@@ -60,10 +60,8 @@ from sickrage.helper.encoding import ek
 from sickrage.show.Show import Show
 
 
-import shutil_custom
 
 
-shutil.copyfile = shutil_custom.copyfile_custom
 
 # pylint: disable=protected-access
 # Access to a protected member of a client class
@@ -1426,8 +1424,8 @@ def download_file(url, filename, session=None, headers=None, **kwargs):  # pylin
                             fp.flush()
 
                 chmodAsParent(filename)
-            except Exception:
-                logger.log("Problem setting permissions or writing file to: {0}".format(filename), logger.WARNING)
+            except Exception as error:
+                logger.log("Problem downloading file, setting permissions or writing file to \"{0}\" - ERROR: {1}".format(filename, error), logger.WARNING)
 
     except Exception as error:
         handle_requests_exception(error)
@@ -1449,10 +1447,9 @@ def handle_requests_exception(requests_exception):  # pylint: disable=too-many-b
         logger.log(traceback.format_exc(), logger.DEBUG)
 
     except requests.exceptions.HTTPError as error:
-        if error.response and error.response.status_code == 404 and \
-            error.response.headers.get('X-Content-Type-Options') == 'nosniff':
-            pass
-        else:
+        if not (hasattr(error, 'response') and error.response and \
+                hasattr(error.response, 'status_code') and error.response.status_code == 404 and \
+                hasattr(error.response, 'headers') and error.response.headers.get('X-Content-Type-Options') == 'nosniff'):
             logger.log(default.format(error))
     except requests.exceptions.TooManyRedirects as error:
         logger.log(default.format(error))
