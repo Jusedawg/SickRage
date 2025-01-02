@@ -1,0 +1,9 @@
+tests
+.github
+/build/
+sickchill.egg-info
+.pytest_cache
+/.eggs/
+/dist/
+.venv
+.git

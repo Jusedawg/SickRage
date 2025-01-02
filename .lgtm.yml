@@ -1,0 +1,12 @@
+path_classifiers:
+  test:
+    - test
+
+queries:
+  - exclude: py/import-and-import-from
+
+extraction:
+  python:
+    python_setup:
+      version: 3
+

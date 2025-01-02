@@ -1,34 +1,23 @@
-# top-most EditorConfig file
 root = true
 
-# Unix-style newlines with a newline ending every file
-# and trailing whitespace removed
 [*]
 end_of_line = lf
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-# Matches multiple files with brace expansion notation
-# Set default charset
-[*.{js,py}]
+[*.{py,mako}]
 charset = utf-8
-
-# Python styling
-[*.py]
 indent_style = space
 indent_size = 4
 
-# Mako styling
-[*.mako]
+[*.{js,jsx,json}]
+charset = utf-8
 indent_style = space
 indent_size = 4
 
-# Indentation override for all JS under lib directory
-[*.js]
+[*.yml]
 indent_style = space
-indent_size = 4
+indent_size = 2
 
-# Matches the exact files either package.json or .travis.yml
-[{package.json,.travis.yml}]
-indent_style = space
+[{package.json,bower.json,webpack.config.js}]
 indent_size = 2
