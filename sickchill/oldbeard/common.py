@@ -95,12 +95,20 @@ class Quality(object):
     UHD_8K_TV = 1 << 12  # 4096 -- 4320p aka 8K UHD aka UHD-2
     UHD_8K_WEBDL = 1 << 13  # 8192
     UHD_8K_BLURAY = 1 << 14  # 16384
-    ANYHDTV = HDTV | FULLHDTV  # 20
-    ANYWEBDL = HDWEBDL | FULLHDWEBDL  # 96
+    HEVC = 1 << 15 # 32768 -- 720p HEVC
+    FULLHEVC = 1 << 16 # 65536 -- 1080p HEVC
+    HEVCWEBDL = 1 << 17 # 131072 -- 720p HEVC WEB-DL
+    FULLHEVCWEBDL = 1 << 18 # 262144 -- 1080p HEVC WEB-DL
+    UHD_4K_HEVC = 1 << 19  # 524288 -- 2160p aka 4K UHD HEVC
+    UHD_8K_HEVC = 1 << 20  # 1048576 -- 4320p aka 8K UHD HEVC
+    ANYHDTV = HDTV | FULLHDTV | HEVC | FULLHEVC  # 98324
+    ANYWEBDL = HDWEBDL | FULLHDWEBDL | HEVCWEBDL | FULLHEVCWEBDL # 393312
     ANYBLURAY = HDBLURAY | FULLHDBLURAY  # 384
+    ANY4K = UHD_4K_TV | UHD_4K_WEBDL | UHD_4K_BLURAY | UHD_4K_HEVC # 527872
+    ANY8K = UHD_8K_TV | UHD_8K_WEBDL | UHD_8K_BLURAY | UHD_8K_HEVC # 1077248
 
     # put these bits at the other end of the spectrum, far enough out that they shouldn't interfere
-    UNKNOWN = 1 << 15  # 32768
+    UNKNOWN = 1 << 21  # 2097152
 
     qualityStrings = NumDict(
         {
@@ -122,6 +130,12 @@ class Quality(object):
             UHD_8K_WEBDL: "8K UHD WEB-DL",
             UHD_4K_BLURAY: "4K UHD BluRay",
             UHD_8K_BLURAY: "8K UHD BluRay",
+            HEVC: "720p HEVC",
+            FULLHEVC: "1080p HEVC",
+            HEVCWEBDL: "720p HEVC WEB-DL",
+            FULLHEVCWEBDL: "1080p HEVC WEB-DL",
+            UHD_4K_HEVC: "4K UHD HEVC",
+            UHD_8K_HEVC: "8K UHD HEVC"
         }
     )
 
@@ -145,6 +159,12 @@ class Quality(object):
             UHD_8K_WEBDL: "8K UHD WEB-DL",
             UHD_4K_BLURAY: "4K UHD BluRay",
             UHD_8K_BLURAY: "8K UHD BluRay",
+            HEVC: "720p HEVC",
+            FULLHEVC: "1080p HEVC",
+            HEVCWEBDL: "720p HEVC WEB-DL",
+            FULLHEVCWEBDL: "1080p HEVC WEB-DL",
+            UHD_4K_HEVC: "4K UHD HEVC",
+            UHD_8K_HEVC: "8K UHD HEVC"
         }
     )
 
@@ -164,12 +184,18 @@ class Quality(object):
             FULLHDWEBDL: "HD1080p",
             HDBLURAY: "HD720p",
             FULLHDBLURAY: "HD1080p",
+            HEVC: "HEVC720P",
+            FULLHEVC: "HEVC1080P",
+            HEVCWEBDL: "HEVC720P",
+            FULLHEVCWEBDL: "HEVC1080P",
             UHD_4K_TV: "UHD-4K",
             UHD_8K_TV: "UHD-8K",
             UHD_4K_WEBDL: "UHD-4K",
             UHD_8K_WEBDL: "UHD-8K",
             UHD_4K_BLURAY: "UHD-4K",
             UHD_8K_BLURAY: "UHD-8K",
+            UHD_4K_HEVC: "UHD-4K-HEVC",
+            UHD_8K_HEVC: "UHD-8K-HEVC",
             ANYHDTV: "any-hd",
             ANYWEBDL: "any-hd",
             ANYBLURAY: "any-hd",
@@ -212,7 +238,7 @@ class Quality(object):
             any_quality = reduce(operator.or_, allowed_qualities)
         if preferred_qualities:
             best_quality = reduce(operator.or_, preferred_qualities)
-        return any_quality | (best_quality << 16)
+        return any_quality | (best_quality << 22)
 
     @staticmethod
     def splitQuality(quality) -> (List[int], List[int]):
@@ -225,7 +251,7 @@ class Quality(object):
                 cur_qual = Quality.NONE
             if cur_qual & quality:
                 allowed_qualities.append(cur_qual)
-            if cur_qual << 16 & quality:
+            if cur_qual << 22 & quality:
                 preferred_qualities.append(cur_qual)
 
         return sorted(allowed_qualities), sorted(preferred_qualities)
@@ -301,7 +327,10 @@ class Quality(object):
                 result = (Quality.UHD_4K_BLURAY, Quality.UHD_8K_BLURAY)[full_res]
             # WEB-DL
             elif ep.itunes or ep.amazon or ep.netflix or ep.web:
-                result = (Quality.UHD_4K_WEBDL, Quality.UHD_8K_WEBDL)[full_res]
+                if ep.hevc == 'hevc' or ep.hevc == 'x265' or ep.hevc:
+                    result = (Quality.UHD_4K_HEVC, Quality.UHD_8K_HEVC)[full_res]
+                else:
+                    result = (Quality.UHD_4K_WEBDL, Quality.UHD_8K_WEBDL)[full_res]
             # HDTV
             elif ep.tv == "hd" or ep.trueHD:
                 result = (Quality.UHD_4K_TV, Quality.UHD_8K_TV)[full_res]
@@ -313,9 +342,15 @@ class Quality(object):
                     result = (Quality.HDBLURAY, Quality.FULLHDBLURAY)[full_res]
                 # WEB-DL
                 elif ep.itunes or ep.amazon or ep.netflix or ep.web:
-                    result = (Quality.HDWEBDL, Quality.FULLHDWEBDL)[full_res]
+                    if ep.hevc == 'hevc' or ep.hevc == 'x265' or ep.hevc:
+                        result = (Quality.HEVCWEBDL, Quality.FULLHEVCWEBDL)[full_res]
+                    else:
+                        result = (Quality.HDWEBDL, Quality.FULLHDWEBDL)[full_res]
+                #HEVC
+                elif (ep.hevc == 'hevc' or ep.hevc == 'x265' or ep.hevc == 'h265' or ep.hevc):
+                    result = (Quality.HEVC, Quality.FULLHEVC)[full_res]
                 # HDTV
-                elif ep.tv == "hd" or ep.hevc or ep.trueHD:
+                elif ep.tv == "hd" or ep.trueHD:
                     result = (Quality.HDTV, Quality.FULLHDTV)[full_res]  # 1080 HDTV h264
                 # MPEG2 encoded
                 elif all([full_res, ep.tv == "hd", ep.mpeg]):
@@ -365,16 +400,17 @@ class Quality(object):
         base_filename = path.basename(filename)
         bluray = re.search(r"blue?-?ray|hddvd|b[rd](rip|mux)", base_filename, re.I) is not None
         webdl = re.search(r"web.?dl|web(rip|mux|hd)", base_filename, re.I) is not None
+        hevc = re.search(r"hevc|x265|h265|H 265)", base_filename, re.I) is not None
 
         ret = Quality.UNKNOWN
         if 3240 < height:
-            ret = ((Quality.UHD_8K_TV, Quality.UHD_8K_BLURAY)[bluray], Quality.UHD_8K_WEBDL)[webdl]
+            ret = (((Quality.UHD_8K_TV, Quality.UHD_8K_BLURAY)[bluray], Quality.UHD_8K_WEBDL)[webdl], Quality.UHD_8K_HEVC)[hevc]
         if 1620 < height <= 3240:
-            ret = ((Quality.UHD_4K_TV, Quality.UHD_4K_BLURAY)[bluray], Quality.UHD_4K_WEBDL)[webdl]
+            ret = (((Quality.UHD_4K_TV, Quality.UHD_4K_BLURAY)[bluray], Quality.UHD_4K_WEBDL)[webdl], Quality.UHD_4K_HEVC)[hevc]
         elif 800 < height <= 1620:
-            ret = ((Quality.FULLHDTV, Quality.FULLHDBLURAY)[bluray], Quality.FULLHDWEBDL)[webdl]
+            ret = ((((Quality.FULLHDTV, Quality.FULLHDBLURAY)[bluray], Quality.FULLHDWEBDL)[webdl], Quality.FULLHEVC)[hevc], Quality.FULLHEVCWEBDL)[hevc&webdl]
         elif 680 < height <= 800:
-            ret = ((Quality.HDTV, Quality.HDBLURAY)[bluray], Quality.HDWEBDL)[webdl]
+            ret = ((((Quality.HDTV, Quality.HDBLURAY)[bluray], Quality.HDWEBDL)[webdl], Quality.HEVC)[hevc], Quality.HEVCWEBDL)[hevc&webdl]
         elif height <= 680:
             ret = (Quality.SDTV, Quality.SDDVD)[re.search(r"dvd|b[rd]rip|blue?-?ray", base_filename, re.I) is not None]
 
@@ -502,11 +538,16 @@ Quality.ARCHIVED.sort()
 
 HD720p = Quality.combineQualities([Quality.HDTV, Quality.HDWEBDL, Quality.HDBLURAY], [])
 HD1080p = Quality.combineQualities([Quality.FULLHDTV, Quality.FULLHDWEBDL, Quality.FULLHDBLURAY], [])
+HEVC720P = Quality.combineQualities([Quality.HEVC, Quality.HEVCWEBDL], [])
+HEVC1080P = Quality.combineQualities([Quality.FULLHEVC, Quality.FULLHEVCWEBDL], [])
 UHD_4K = Quality.combineQualities([Quality.UHD_4K_TV, Quality.UHD_4K_WEBDL, Quality.UHD_4K_BLURAY], [])
 UHD_8K = Quality.combineQualities([Quality.UHD_8K_TV, Quality.UHD_8K_WEBDL, Quality.UHD_8K_BLURAY], [])
+UHD_4K_HEVC = Quality.combineQualities([Quality.UHD_4K_HEVC], [])
+UHD_8K_HEVC = Quality.combineQualities([Quality.UHD_8K_HEVC], [])
 
 SD = Quality.combineQualities([Quality.SDTV, Quality.SDDVD], [])
 HD = Quality.combineQualities([HD720p, HD1080p], [])
+HEVC = Quality.combineQualities([HEVC720P, HEVC1080P], [])
 UHD = Quality.combineQualities([UHD_4K, UHD_8K], [])
 ANY = Quality.combineQualities([SD, HD, UHD], [])
 
@@ -519,9 +560,13 @@ qualityPresets = (
     HD,
     HD720p,
     HD1080p,
+    HEVC720P,
+    HEVC1080P,
     UHD,
     UHD_4K,
     UHD_8K,
+    UHD_4K_HEVC,
+    UHD_8K_HEVC
 )
 
 qualityPresetStrings = NumDict(
@@ -530,9 +575,13 @@ qualityPresetStrings = NumDict(
         HD: "HD",
         HD720p: "HD720p",
         HD1080p: "HD1080p",
+        HEVC720P: "HEVC720P",
+        HEVC1080P: "HEVC1080P",
         UHD: "UHD",
         UHD_4K: "UHD-4K",
         UHD_8K: "UHD-8K",
+        UHD_4K_HEVC: "UHD-4K-HEVC",
+        UHD_8K_HEVC: "UHD-8K-HEVC",
         ANY: "Any",
     }
 )

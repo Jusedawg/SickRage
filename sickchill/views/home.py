@@ -1427,7 +1427,7 @@ class Home(WebRoot):
         settings.SHOWS_RECENT = [x for x in settings.SHOWS_RECENT if x["indexerid"] != show.indexerid]
 
         # Don't redirect to the default page, so the user can confirm that the show was deleted
-        return self.redirect("/home/")
+        return self.redirect("/home/status/")
 
     def refreshShow(self):
         show = self.get_query_argument("show")
@@ -1502,14 +1502,14 @@ class Home(WebRoot):
         if show_obj:
             return self.redirect(f"/home/displayShow?show={show_obj.indexerid}")
 
-        return self.redirect("/home/")
+        return self.redirect("/home/status/")
 
     def updatePLEX(self):
         if notifiers.plex_notifier.update_library() is None:
             ui.notifications.message(_("Library update command sent to Plex Media Server host: {plex_server}").format(plex_server=settings.PLEX_SERVER_HOST))
         else:
             ui.notifications.error(_("Unable to contact Plex Media Server host: {plex_server}").format(plex_server=settings.PLEX_SERVER_HOST))
-        return self.redirect("/home/")
+        return self.redirect("/home/status/")
 
     def updateEMBY(self, show=None):
         show_obj = None
@@ -1525,7 +1525,7 @@ class Home(WebRoot):
         if show_obj:
             return self.redirect(f"/home/displayShow?show={show_obj.indexerid}")
 
-        return self.redirect("/home/")
+        return self.redirect("/home/status/")
 
     def updateJELLYFIN(self, show=None):
         show_obj = None
@@ -1541,7 +1541,7 @@ class Home(WebRoot):
         if show_obj:
             return self.redirect(f"/home/displayShow?show={show_obj.indexerid}")
 
-        return self.redirect("/home/")
+        return self.redirect("/home/status/")
 
     def setStatus(self, direct=False):
         if direct is True:

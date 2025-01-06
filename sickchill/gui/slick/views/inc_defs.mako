@@ -26,6 +26,10 @@
         set_720p = {Quality.HDTV, Quality.RAWHDTV, Quality.HDWEBDL, Quality.HDBLURAY}
         set_uhd_4k = {Quality.UHD_4K_TV, Quality.UHD_4K_BLURAY, Quality.UHD_4K_WEBDL}
         set_uhd_8k = {Quality.UHD_8K_TV, Quality.UHD_8K_BLURAY, Quality.UHD_8K_WEBDL}
+        set_hevc = {Quality.HEVC, Quality.HEVCWEBDL}
+        set_fullhevc = {Quality.FULLHEVC, Quality.FULLHEVCWEBDL}
+        set_uhd_4k_hevc = {Quality.UHD_4K_HEVC}
+        set_uhd_8k_hevc = {Quality.UHD_8K_HEVC}
 
         # If allowed and preferred qualities are the same, show pill as allowed quality
         if sum_allowed_qualities == sum_preferred_qualities:
@@ -68,6 +72,22 @@
         elif set(allowed_qualities).issubset(set_uhd_8k)and set(preferred_qualities).issubset(set_uhd_8k):
             cssClass = Quality.cssClassStrings[Quality.HDBLURAY]
             qualityString = '8K-UHD'
+        # Check if all resolutions are 720p and hevc quality
+        elif set(allowed_qualities).issubset(set_hevc) and set(preferred_qualities).issubset(set_hevc):
+            cssClass = Quality.cssClassStrings[Quality.HEVC]
+            qualityString = 'HEVC'
+        # Check if all resolutions are 1080p and hevc quality
+        elif set(allowed_qualities).issubset(set_fullhevc) and set(preferred_qualities).issubset(set_fullhevc):
+            cssClass = Quality.cssClassStrings[Quality.FULLHEVC]
+            qualityString = 'FULLHEVC'
+        # Check if all resolutions are 4K and hevc quality
+        elif set(allowed_qualities).issubset(set_uhd_4k_hevc) and set(preferred_qualities).issubset(set_uhd_4k_hevc):
+            cssClass = Quality.cssClassStrings[Quality.UHD_4K_HEVC]
+            qualityString = '4K-UHD-HEVC'
+        # Check if all resolutions are 8K and hevc quality
+        elif set(allowed_qualities).issubset(set_uhd_8k_hevc) and set(preferred_qualities).issubset(set_uhd_8k_hevc):
+            cssClass = Quality.cssClassStrings[Quality.UHD_8K_HEVC]
+            qualityString = '8K-UHD-HEVC'
         else:
             cssClass = "Custom"
             qualityString = "Custom"

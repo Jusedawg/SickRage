@@ -157,7 +157,7 @@ class WebHandler(BaseHandler):
                 ui.notifications.error(*message)
                 logger.info(", ".join(message))
                 helpers.add_site_message(", ".join(message), tag=message[0])
-                return self.redirect("/home/")
+                return self.redirect("/home/status/")
 
             from inspect import signature
 
@@ -274,7 +274,7 @@ class WebRoot(WebHandler):
 
         settings.HOME_LAYOUT = layout
         # Don't redirect to default page so user can see new layout
-        return self.redirect("/home/")
+        return self.redirect("/home/status/")
 
     def setPosterSortBy(self):
         sort = self.get_query_argument("sort")

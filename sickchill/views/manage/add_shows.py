@@ -408,7 +408,7 @@ class AddShows(Home):
             logger.info(" ".join([title, message]))
             ui.notifications.error(title, message)
 
-            return self.redirect("/home/")
+            return self.redirect("/home/status/")
 
         if indexer != "TVDB":
             indexer_id = helpers.tvdbid_from_remote_id(indexer_id, indexer.upper())
@@ -437,7 +437,7 @@ class AddShows(Home):
         def finishAddShow():
             # if there are no extra shows then go home
             if not other_shows:
-                return self.redirect("/home/")
+                return self.redirect("/home/status/")
 
             # peel off the next one
             next_show = other_shows[0]
@@ -509,7 +509,7 @@ class AddShows(Home):
                 logger.exception(f"Unable to create the folder {show_dir}, can't add the show")
                 ui.notifications.error(_("Unable to add show"), _("Unable to create the folder {show_dir}, can't add the show").format(show_dir=show_dir))
                 # Don't redirect to default page because user wants to see the new show
-                return self.redirect("/home/")
+                return self.redirect("/home/status/")
 
             helpers.chmodAsParent(show_dir)
 
@@ -646,7 +646,7 @@ class AddShows(Home):
 
         # if we're done then go home
         if not dirs_only:
-            return self.redirect("/home/")
+            return self.redirect("/home/status/")
 
         # for the remaining shows we need to prompt for each one, so forward this on to the newShow page
         return self.newShow(dirs_only[0], dirs_only[1:])

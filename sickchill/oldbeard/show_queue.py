@@ -555,8 +555,8 @@ class QueueItemRefresh(ShowQueueItem):
     def __init__(self, show: "TVShow" = None, force=False):
         super(QueueItemRefresh, self).__init__(ShowQueueActions.REFRESH, show)
 
-        # do refreshes first because they're quick
-        self.priority = generic_queue.QueuePriorities.HIGH
+        # do refreshes normal so everything else can come first, doing these as high/first falls apart when you have an insane amount of shows
+        self.priority = generic_queue.QueuePriorities.NORMAL
 
         # force refresh certain items
         self.force = force

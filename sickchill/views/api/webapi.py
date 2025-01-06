@@ -517,8 +517,16 @@ QUALITY_MAP = {
     "fullhdtv": Quality.FULLHDTV,
     Quality.HDWEBDL: "hdwebdl",
     "hdwebdl": Quality.HDWEBDL,
+    Quality.HEVC: 'hevc',
+    "hevc": Quality.HEVC,
+    Quality.HEVCWEBDL: 'hevcwebdl',
+    'hevcwebdl': Quality.HDWEBDL,
     Quality.FULLHDWEBDL: "fullhdwebdl",
     "fullhdwebdl": Quality.FULLHDWEBDL,
+    Quality.FULLHEVC: 'fullhevc',
+    "fullhevc": Quality.FULLHEVC,
+    Quality.FULLHEVCWEBDL: 'fullhevcwebdl',
+    'fullhevcwebdl': Quality.FULLHEVCWEBDL,
     Quality.HDBLURAY: "hdbluray",
     "hdbluray": Quality.HDBLURAY,
     Quality.FULLHDBLURAY: "fullhdbluray",
@@ -535,6 +543,11 @@ QUALITY_MAP = {
     "uhd8kbluray": Quality.UHD_8K_BLURAY,
     Quality.UHD_8K_WEBDL: "udh8kwebdl",
     "udh8kwebdl": Quality.UHD_8K_WEBDL,
+    Quality.UHD_4K_HEVC: "4khevc",
+    "4khevc": Quality.UHD_4K_HEVC,
+    Quality.UHD_8K_HEVC: "8khevc",
+    "8khevc": Quality.UHD_8K_HEVC,
+
     Quality.UNKNOWN: "unknown",
     "unknown": Quality.UNKNOWN,
 }
@@ -555,6 +568,12 @@ ALLOWED_QUALITY_LIST = [
     "udh8ktv",
     "uhd8kbluray",
     "udh8kwebdl",
+    "hevc",
+    "fullhevc",
+    "hevcwebdl",
+    "fullhevcwebdl",
+    "4khevc",
+    "8khevc",
     "unknown",
 ]
 
@@ -574,6 +593,12 @@ PREFERRED_QUALITY_LIST = [
     "udh8ktv",
     "uhd8kbluray",
     "udh8kwebdl",
+    "hevc",
+    "fullhevc",
+    "hevcwebdl",
+    "fullhevcwebdl",
+    "4khevc",
+    "8khevc"
 ]
 
 
